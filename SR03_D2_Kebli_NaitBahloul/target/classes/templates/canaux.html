@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Gestion des canaux</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f7f9fc;
+            font-family: "Segoe UI", sans-serif;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .badge-status {
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body class="container py-4">
+
+<!-- En-tête -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Canaux de discussion</h2>
+    <div>
+        <a th:href="@{/home}" class="btn btn-outline-secondary me-2">⬅ Retour Admin</a>
+        <a th:href="@{/home/logout}" class="btn btn-outline-danger">Déconnexion</a>
+    </div>
+</div>
+
+<!-- Message de feedback -->
+<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+<div class="row g-4">
+    <!-- Formulaire création -->
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h5>Créer un canal</h5>
+            <form th:action="@{/canaux/creer}" method="post">
+                <div class="mb-2">
+                    <label for="titre">Titre</label>
+                    <input type="text" id="titre" name="titre" class="form-control" required>
+                </div>
+                <div class="mb-2">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" class="form-control" rows="2" required></textarea>
+                </div>
+                <div class="mb-2">
+                    <label for="dateDebut">Date & heure</label>
+                    <input type="datetime-local" id="dateDebut" name="dateDebut" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="duree">Durée (min)</label>
+                    <input type="number" id="duree" name="duree" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Créer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des canaux -->
+    <div class="col-md-8">
+        <div class="card p-3">
+            <h5>Mes canaux</h5>
+            <form th:action="@{/canaux}" method="get" class="mb-3 d-flex gap-2 align-items-center">
+                <input type="text" name="filtre" placeholder="🔍 Filtrer par titre" th:value="${filtre}" class="form-control w-50" />
+                <button class="btn btn-outline-primary btn-sm">Rechercher</button>
+                <a th:href="@{/canaux}" class="btn btn-outline-secondary btn-sm">Réinitialiser</a>
+            </form>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mt-3">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Titre</th>
+                        <th>Date</th>
+                        <th>Durée</th>
+                        <th>Statut</th>
+                        <th>Participants</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="canal : ${canaux}">
+                        <td>
+                            <strong th:text="${canal.titre}"></strong><br>
+                            <small class="text-muted" th:text="${canal.description}"></small>
+                        </td>
+                        <td th:text="${#temporals.format(canal.dateDebut, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${canal.duree + ' min'}"></td>
+                        <td>
+                                    <span th:classappend="${canal.actif} ? 'text-success' : 'text-danger'"
+                                          class="badge-status">
+                                        <span th:text="${canal.actif ? '🟢 Actif' : '🔴 Inactif'}"></span>
+                                    </span>
+                        </td>
+                        <td>
+                            <ul class="list-unstyled mb-0 ms-1">
+                                <li th:each="p : ${participantsParCanal[canal.id]}"
+                                    th:text="|• ${p.prenom} ${p.nom} (${p.email})|"></li>
+                            </ul>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                <!-- Activer / Désactiver -->
+                                <form th:if="${canal.actif}" th:action="@{/canaux/desactiver/{id}(id=${canal.id})}" method="post">
+                                    <button class="btn btn-outline-warning btn-sm">Désactiver</button>
+                                </form>
+                                <form th:if="${!canal.actif}" th:action="@{/canaux/activer/{id}(id=${canal.id})}" method="post">
+                                    <button class="btn btn-outline-success btn-sm">Activer</button>
+                                </form>
+
+                                <!-- Inviter un utilisateur -->
+                                <form th:action="@{/canaux/inviter}" method="post" class="d-flex gap-1">
+                                    <input type="hidden" name="canalId" th:value="${canal.id}">
+                                    <select name="userId" class="form-select form-select-sm w-auto" required>
+                                        <option th:each="u : ${utilisateurs}" th:value="${u.id}" th:text="${u.email}">user</option>
+                                    </select>
+                                    <button class="btn btn-sm btn-outline-primary">Inviter</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div> <!-- table-responsive -->
+        </div>
+    </div>
+</div>
+</body>
+</html>

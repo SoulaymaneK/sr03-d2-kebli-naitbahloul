@@ -1,0 +1,17 @@
+src/
+├── main/
+│   ├── java/
+│   │   └── com/example/sr03_d2_kebli_naitbahloul/
+│   │       ├── controller/          ← Contrôleurs Spring (admin, utilisateur, chat)
+│   │       ├── model/               ← Entités métier (Utilisateur, Canal, Message)
+│   │       ├── repository/          ← Interfaces JPA (si tu ajoutes la persistance)
+│   │       ├── service/             ← Logique métier (optionnel mais recommandé)
+│   │       └── Sr03D2KebliNaitBahloulApplication.java
+│   ├── resources/
+│   │   ├── static/                  ← CSS, JS, images
+│   │   ├── templates/               ← Fichiers Thymeleaf (.html)
+│   │   └── application.properties   ← Configuration Spring
+├── test/
+│   └── java/
+│       └── com/example/sr03_d2_kebli_naitbahloul/
+│           └── Sr03D2KebliNaitBahloulApplicationTests.java
